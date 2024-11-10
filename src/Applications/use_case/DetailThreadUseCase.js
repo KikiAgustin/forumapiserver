@@ -1,7 +1,8 @@
 class DetailThreadUseCase {
-  constructor({ threadRepository, commentRepository }) {
+  constructor({ threadRepository, commentRepository, likeRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
+    this._likeRepository = likeRepository;
   }
 
   async execute(params) {
@@ -11,16 +12,26 @@ class DetailThreadUseCase {
       threadId
     );
 
+    const commentsWithLikeCount = await Promise.all(
+      commentThread.map(async (comment) => {
+        const likeCount = await this._likeRepository.getCountLikeByCommentId(
+          comment.id
+        );
+        return {
+          id: comment.id,
+          username: comment.username,
+          date: comment.date,
+          content: comment.is_deleted
+            ? "**komentar telah dihapus**"
+            : comment.content,
+          likeCount: likeCount || 0,
+        };
+      })
+    );
+
     const result = {
       ...threadDetail,
-      comments: commentThread.map((comment) => ({
-        id: comment.id,
-        username: comment.username,
-        date: comment.date,
-        content: comment.is_deleted
-          ? "**komentar telah dihapus**"
-          : comment.content,
-      })),
+      comments: commentsWithLikeCount,
     };
 
     return result;

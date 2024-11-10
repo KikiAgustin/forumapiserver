@@ -1,5 +1,6 @@
 const ThreadRepository = require("../../../Domains/threads/ThreadRepository");
 const CommentRepository = require("../../../Domains/comments/CommentRepository");
+const LikeRepository = require("../../../Domains/likes/LikeRepository");
 const DetailThreadUseCase = require("../DetailThreadUseCase");
 
 describe("DetailThreadUseCase", () => {
@@ -21,6 +22,7 @@ describe("DetailThreadUseCase", () => {
           username: "user456",
           date: "2024-11-02",
           content: "Example comment content",
+          likeCount: 5,
         },
       ],
     };
@@ -28,10 +30,12 @@ describe("DetailThreadUseCase", () => {
     // Mock dependencies
     const threadRepository = new ThreadRepository();
     const commentRepository = new CommentRepository();
+    const likeRepository = new LikeRepository();
 
     const detailThreadUseCase = new DetailThreadUseCase({
       threadRepository,
       commentRepository,
+      likeRepository,
     });
 
     // Mock methods
@@ -53,6 +57,8 @@ describe("DetailThreadUseCase", () => {
       },
     ]);
 
+    jest.spyOn(likeRepository, "getCountLikeByCommentId").mockResolvedValue(5);
+
     // Action
     const threadDetail = await detailThreadUseCase.execute(useCaseParams);
 
@@ -63,6 +69,9 @@ describe("DetailThreadUseCase", () => {
     );
     expect(commentRepository.getCommentsByThreadId).toHaveBeenCalledWith(
       useCaseParams.threadId
+    );
+    expect(likeRepository.getCountLikeByCommentId).toHaveBeenCalledWith(
+      "comment-123"
     );
   });
   it("should return thread detail with deleted comment", async () => {
@@ -83,6 +92,7 @@ describe("DetailThreadUseCase", () => {
           username: "user456",
           date: "2024-11-02",
           content: "**komentar telah dihapus**",
+          likeCount: 0,
         },
       ],
     };
@@ -90,10 +100,12 @@ describe("DetailThreadUseCase", () => {
     // Mock dependencies
     const threadRepository = new ThreadRepository();
     const commentRepository = new CommentRepository();
+    const likeRepository = new LikeRepository();
 
     const detailThreadUseCase = new DetailThreadUseCase({
       threadRepository,
       commentRepository,
+      likeRepository,
     });
 
     // Mock methods
@@ -115,6 +127,8 @@ describe("DetailThreadUseCase", () => {
       },
     ]);
 
+    jest.spyOn(likeRepository, "getCountLikeByCommentId").mockResolvedValue(0);
+
     // Action
     const threadDetail = await detailThreadUseCase.execute(useCaseParams);
 
@@ -125,6 +139,9 @@ describe("DetailThreadUseCase", () => {
     );
     expect(commentRepository.getCommentsByThreadId).toHaveBeenCalledWith(
       useCaseParams.threadId
+    );
+    expect(likeRepository.getCountLikeByCommentId).toHaveBeenCalledWith(
+      "comment-123"
     );
   });
 });
