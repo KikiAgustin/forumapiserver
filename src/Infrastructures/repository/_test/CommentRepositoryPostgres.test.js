@@ -8,6 +8,14 @@ const ThreadsTableTestHelper = require("../../../../tests/ThreadsTableTestHelper
 const CommentsTableTestHelper = require("../../../../tests/CommentsTableTestHelper");
 
 describe("CommentRepositoryPostgres", () => {
+  beforeEach(async () => {
+    await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
+    await ThreadsTableTestHelper.addThread({
+      id: "thread-1",
+      owner: "user-1",
+    });
+  });
+
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
@@ -21,11 +29,6 @@ describe("CommentRepositoryPostgres", () => {
   describe("addCommentThread", () => {
     it("should add a comment and return the new comment", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       const comment = {
         content: "Test comment",
         threadId: "thread-1",
@@ -62,11 +65,6 @@ describe("CommentRepositoryPostgres", () => {
   describe("getCommentsByThreadId", () => {
     it("should return list of comments for a given thread", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       await CommentsTableTestHelper.addCommentThread({
         id: "comment-1",
         content: "This is a comment",
@@ -108,11 +106,6 @@ describe("CommentRepositoryPostgres", () => {
 
     it("should not throw an error if the comment exists", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       await CommentsTableTestHelper.addCommentThread({
         id: "comment-1",
         threadId: "thread-1",
@@ -133,11 +126,6 @@ describe("CommentRepositoryPostgres", () => {
   describe("verifyCommentAccess", () => {
     it("should throw AuthorizationError if the owner does not match", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       await CommentsTableTestHelper.addCommentThread({
         id: "comment-1",
         threadId: "thread-1",
@@ -156,11 +144,6 @@ describe("CommentRepositoryPostgres", () => {
 
     it("should not throw an error if the owner matches", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       await CommentsTableTestHelper.addCommentThread({
         id: "comment-1",
         threadId: "thread-1",
@@ -181,11 +164,6 @@ describe("CommentRepositoryPostgres", () => {
   describe("deleteCommentById", () => {
     it("should delete the comment if it exists", async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ id: "user-1", username: "user1" });
-      await ThreadsTableTestHelper.addThread({
-        id: "thread-1",
-        owner: "user-1",
-      });
       await CommentsTableTestHelper.addCommentThread({
         id: "comment-1",
         threadId: "thread-1",
